@@ -1,5 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"></mule>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-toys" doc:id="931b108a-ea53-4ca9-acde-f3ca5ac3b0d4" >
+		<mcp:tool-listener doc:name="Tool Listener" doc:id="e8f44573-9491-4888-bdee-032b047b81f0" config-ref="MCP_Server" name="get-toys">
+			<mcp:description ><![CDATA[Get all the dog toys avaible from your data	]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{ 
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {},
+  "required": []
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<ee:transform doc:name="Toys Data" doc:id="626a9750-6f07-4f31-b3bc-8949a0abf8e3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ id: 1234,
+ name: "Chewy",
+ country: "USA",
+ city: "New York",
+ productCategories: "DOG_TOYS"  
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="create-order" doc:id="47fa1664-304b-419b-bed2-28f3be308919" >
+		<mcp:tool-listener doc:name="Tool Listener" doc:id="507bc2d8-5f32-43ca-b82f-02ffb9bf4b66" config-ref="MCP_Server" name="create-toy-order">
+			<mcp:description ><![CDATA[Create a purchase order for a dog toy]]></mcp:description>
+			<mcp:parameters-schema ><![CDATA[{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+   "name": {
+      "type": "string",
+      "description": "Name for the purchase order."
+    },
+     "description": {
+  "type": "string",
+       "description": "Purchase order description."
+     },
+     "vendorCode": {
+      "type": "string",
+       "description": "Code that identifies the vendor."
+     },
+     "itemDescription": {
+      "type": "string",
+       "description": "Description of the item purchased in this order."
+     },
+     "price": {
+      "type": "number",
+      "description": "Monetary amount of the purchase order."
+  },
+  "currency": {
+   "type": "string",
+   "description": "Currency code for the purchase order monetary amount."
+    }
+  },
+  "required": ["name", "description", "vendorCode", "itemDescription", "price", "currency"]
+}]]></mcp:parameters-schema>
+			<mcp:responses >
+				<mcp:text-tool-response-content text="#['Created Order $(payload.PurchaseOrderNumber)']" />
+			</mcp:responses>
+		</mcp:tool-listener>
+		<ee:transform doc:name="Purchase Order Data" doc:id="a00ad4f6-6fc9-46c7-8d47-a7b881d4e8b5">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"PurchaseOrderNumber":"1234"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
