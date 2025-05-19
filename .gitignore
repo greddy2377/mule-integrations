@@ -42,6 +42,7 @@ local.properties
 # Studio-specific #
 # --------------- #
 target/
+.tooling-apps-cache/
 .mule/
 .DS_Store
 velocity.log
