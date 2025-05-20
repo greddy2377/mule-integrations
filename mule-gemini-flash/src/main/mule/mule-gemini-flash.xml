@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns:ms-aichain="http://www.mulesoft.org/schema/mule/ms-aichain"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ms-aichain http://www.mulesoft.org/schema/mule/ms-aichain/current/mule-ms-aichain.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="call-get-toy-tool" doc:id="ecb7751a-2bc5-484b-a80a-7796d4dbd55c" >
+		<http:listener doc:name="Get Toy Listener" doc:id="f9e876ff-ffc6-46da-bcb3-fd2ccb3e5b47" config-ref="HTTP_Listener_config_gemini_flash" path="/get-toy"/>
+		<mcp:call-tool doc:name="Call get-toy Tool From MCP Server" doc:id="990d1135-541c-4bb0-9022-5f0c3d670614" config-ref="MCP_Client" toolName="get-toys">
+			<mcp:arguments ><![CDATA[#[{}]]]></mcp:arguments>
+		</mcp:call-tool>
+		<ms-aichain:agent-define-prompt-template doc:name="Agent - Gemini Flash 1.5" doc:id="fad8fa9a-a11f-42f0-a708-5561715ab2a1" config-ref="MuleSoft_AI_Chain_Config">
+			<ms-aichain:dataset ><![CDATA[#[payload.contents[0].text]]]></ms-aichain:dataset>
+			<ms-aichain:template ><![CDATA[You are an AI agent]]></ms-aichain:template>
+			<ms-aichain:instructions ><![CDATA[Read all the tools used and list the items in this format -
+Name, product category
+Give insights on each tool and format the response well]]></ms-aichain:instructions>
+		</ms-aichain:agent-define-prompt-template>
+		<ee:transform doc:name="Data Transform" doc:id="37c83d0e-5f16-44ae-8d25-fa26ec568aad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.response]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="mule-gemini-flashFlow" doc:id="8095a4d9-ef01-4306-af19-42dcbf345c52" >
+		<http:listener doc:name="Listener" doc:id="1b4dc766-7614-460d-8923-ac1dfa18d534" config-ref="HTTP_Listener_config_gemini_flash" path="/create-order"/>
+		<mcp:call-tool toolName="create-toy-order" doc:name="Call create-order Tool From MCP Server" doc:id="da926f45-c31e-4479-8f79-6a2bafa70849" config-ref="MCP_Client" >
+			<mcp:arguments ><![CDATA[#[{
+	"purchaseOrderNumber" : "1234",
+	"vendorCode" : "ABCD",
+	"itemDescription" : "Chewy tool",
+	"price" : 24
+}]]]></mcp:arguments>
+		</mcp:call-tool>
+		<logger level="INFO" doc:name="Logger" doc:id="98d30e46-2066-4894-8c37-c4cde37e4270" message="#[payload]"/>
+		<ms-aichain:agent-define-prompt-template doc:name="Agent - Gemini Flash 1.5" doc:id="b4341d3d-6fc9-416a-b87a-39f7b94d5bbb" config-ref="MuleSoft_AI_Chain_Config" >
+			<ms-aichain:dataset ><![CDATA[#[payload.contents[0].text]]]></ms-aichain:dataset>
+			<ms-aichain:template ><![CDATA[You are an AI agent who helps create orders]]></ms-aichain:template>
+			<ms-aichain:instructions ><![CDATA[Read all the dataset used and create the order]]></ms-aichain:instructions>
+		</ms-aichain:agent-define-prompt-template>
+		<ee:transform doc:name="Data Transform" doc:id="61993118-cc12-47b5-9b0f-98f48de22781">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload.response]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="70e81be3-c224-4d77-9c3b-54c7e2433670" message="#[payload]"/>
+	</flow>
+</mule>

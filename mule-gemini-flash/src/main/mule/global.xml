@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ms-aichain="http://www.mulesoft.org/schema/mule/ms-aichain" xmlns:mcp="http://www.mulesoft.org/schema/mule/mcp"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/mcp http://www.mulesoft.org/schema/mule/mcp/current/mule-mcp.xsd
+http://www.mulesoft.org/schema/mule/ms-aichain http://www.mulesoft.org/schema/mule/ms-aichain/current/mule-ms-aichain.xsd">
+	<http:listener-config name="HTTP_Listener_config_gemini_flash" doc:name="HTTP Listener config" doc:id="9faeb860-cd20-47d0-9f3a-13e31f9087e2" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<mcp:client-config name="MCP_Client" doc:name="MCP Client" doc:id="4121257d-97d2-4d43-b936-1687f126ea68" clientName="Mule MCP Client" clientVersion="1.0.0">
+		<mcp:sse-client-connection serverUrl="http://localhost:8090" />
+	</mcp:client-config>
+	<ms-aichain:config name="MuleSoft_AI_Chain_Config" llmType="GEMINI_AI" configType="Configuration Json" modelName="gemini-1.5-flash" doc:name="MuleSoft AI Chain Config" doc:id="a6c4f969-ffce-456d-91b3-536245947f89" filePath='#[mule.home ++ "/apps/" ++ app.name ++ "/ai_config.json"]' />
+</mule>

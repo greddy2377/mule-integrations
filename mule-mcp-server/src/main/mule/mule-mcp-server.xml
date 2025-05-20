@@ -60,16 +60,19 @@ output application/json
   "required": ["purchaseOrderNumber", "vendorCode", "itemDescription", "price"]
 }]]></mcp:parameters-schema>
 			<mcp:responses >
-				<mcp:text-tool-response-content text="#['Created Order $(payload.PurchaseOrderNumber)']" />
+				<mcp:text-tool-response-content text="#[payload.^raw]" />
 			</mcp:responses>
 		</mcp:tool-listener>
 		<ee:transform doc:name="Purchase Order Data" doc:id="a00ad4f6-6fc9-46c7-8d47-a7b881d4e8b5">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
-output application/java
+output application/json
 ---
 {
-	"PurchaseOrderNumber":"1234"
+	"purchaseOrderNumber": "1234",
+	"vendorCode": "ABCD",
+	"itemDescription" : "Chewy Dog toy",
+	"price" : 24
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
