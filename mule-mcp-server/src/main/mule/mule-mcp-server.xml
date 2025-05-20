@@ -55,9 +55,13 @@ output application/json
      "price": {
       "type": "number",
       "description": "Monetary amount of the purchase order."
+  },
+  "quantity": {
+      "type": "number",
+      "description": "Number of items"
   }
   },
-  "required": ["purchaseOrderNumber", "vendorCode", "itemDescription", "price"]
+  "required": ["purchaseOrderNumber", "vendorCode", "itemDescription", "price", "quantity"]
 }]]></mcp:parameters-schema>
 			<mcp:responses >
 				<mcp:text-tool-response-content text="#[payload.^raw]" />
@@ -72,7 +76,8 @@ output application/json
 	"purchaseOrderNumber": "1234",
 	"vendorCode": "ABCD",
 	"itemDescription" : "Chewy Dog toy",
-	"price" : 24
+	"price" : 24,
+	"quantity": 5
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>

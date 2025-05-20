@@ -28,21 +28,21 @@ payload.response]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="mule-gemini-flashFlow" doc:id="8095a4d9-ef01-4306-af19-42dcbf345c52" >
+	<flow name="call-create-order-tool" doc:id="8095a4d9-ef01-4306-af19-42dcbf345c52" >
 		<http:listener doc:name="Listener" doc:id="1b4dc766-7614-460d-8923-ac1dfa18d534" config-ref="HTTP_Listener_config_gemini_flash" path="/create-order"/>
 		<mcp:call-tool toolName="create-toy-order" doc:name="Call create-order Tool From MCP Server" doc:id="da926f45-c31e-4479-8f79-6a2bafa70849" config-ref="MCP_Client" >
 			<mcp:arguments ><![CDATA[#[{
-	"purchaseOrderNumber" : "1234",
-	"vendorCode" : "ABCD",
-	"itemDescription" : "Chewy tool",
-	"price" : 24
+	"purchaseOrderNumber" : "",
+	"vendorCode" : "",
+	"itemDescription" : "",
+	"price" : 1,
+	"quantity": 1
 }]]]></mcp:arguments>
 		</mcp:call-tool>
-		<logger level="INFO" doc:name="Logger" doc:id="98d30e46-2066-4894-8c37-c4cde37e4270" message="#[payload]"/>
-		<ms-aichain:agent-define-prompt-template doc:name="Agent - Gemini Flash 1.5" doc:id="b4341d3d-6fc9-416a-b87a-39f7b94d5bbb" config-ref="MuleSoft_AI_Chain_Config" >
+		<ms-aichain:agent-define-prompt-template doc:name="Agent - Gemini Flash 1.5" doc:id="b4341d3d-6fc9-416a-b87a-39f7b94d5bbb" config-ref="MuleSoft_AI_Chain_Config" outputMimeType="application/json" outputEncoding="UTF-8">
 			<ms-aichain:dataset ><![CDATA[#[payload.contents[0].text]]]></ms-aichain:dataset>
 			<ms-aichain:template ><![CDATA[You are an AI agent who helps create orders]]></ms-aichain:template>
-			<ms-aichain:instructions ><![CDATA[Read all the dataset used and create the order]]></ms-aichain:instructions>
+			<ms-aichain:instructions ><![CDATA[Read from the dataset and create the order. Also provide insights]]></ms-aichain:instructions>
 		</ms-aichain:agent-define-prompt-template>
 		<ee:transform doc:name="Data Transform" doc:id="61993118-cc12-47b5-9b0f-98f48de22781">
 			<ee:message>
@@ -52,6 +52,5 @@ output application/json
 payload.response]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="70e81be3-c224-4d77-9c3b-54c7e2433670" message="#[payload]"/>
 	</flow>
 </mule>
